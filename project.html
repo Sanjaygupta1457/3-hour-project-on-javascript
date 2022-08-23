@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Expense Calculator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <style>
+      body > table {
+        width: 80%;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+      table.list {
+        width: 100%;
+      }
+
+      td,
+      th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      tr:nth-child(even),
+      table.list thead > tr {
+        background-color: #dddddd;
+      }
+
+
+
+
+      form div.form-action-buttons {
+        text-align: right;
+      }
+
+
+      label.validation-error {
+        color: red;
+        margin-left: 5px;
+      }
+
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <td>
+          <form
+            onsubmit="event.preventDefault();onFormSubmit();"
+            autocomplete="off"
+          >
+          <h1>Expense Calculator</h1>
+          <br>
+            <div class="form-group">
+              <label>Choose Expense*</label
+              ><label class="validation-error hide" id="ChooseExpenseValidationError"
+                >This field is required.</label
+              >
+              <input type="number" name="ExpenseDetails" id="ExpenseDetails" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Choose Description</label>
+              <input type="text" name="DescriptionDetails" id="DescriptionDetails" class="form-control"/>
+            </div>
+            <div class="form-group" >
+              <label>Category</label>
+              <select name="CategoryDetails" id="CategoryDetails" class="form-control">
+                <option value="fuel">Fuel</option>
+                <option value="food">Food</option>
+                <option value="electricty">Electricty</option>
+                <option value="movie">Movie</option>
+              </select>
+            </div>
+            <div class="form-action-buttons">
+              <input type="submit" value="Submit" class="btn btn-info"/>
+            </div>
+          </form>
+        </td>
+        <td>
+          <table class="list" id="employeeList">
+            <thead>
+              <tr>
+                <th>Expense</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <script>
+      var selectedRow = null;
+
+      function onFormSubmit() {
+        if (validate()) {
+          var formData = readFormData();
+          if (selectedRow == null){
+            localStorage.setItem(formData.ExpenseDetails,JSON.stringify(formData));
+            insertNewRecord(formData);
+          } 
+          else{
+            localStorage.setItem(formData.ExpenseDetails,JSON.stringify(formData));
+            updateRecord(formData);   
+          } 
+          resetForm();
+        }
+      }
+
+      function readFormData() {
+        var formData = {};
+        formData["ExpenseDetails"] = document.getElementById("ExpenseDetails").value;
+        formData["DescriptionDetails"] = document.getElementById("DescriptionDetails").value;
+        formData["CategoryDetails"] = document.getElementById("CategoryDetails").value;
+        return formData;
+      }
+
+      function insertNewRecord(data) {
+
+        var table = document
+          .getElementById("employeeList")
+          .getElementsByTagName("tbody")[0];
+        var newRow = table.insertRow(table.length);
+        cell1 = newRow.insertCell(0);
+        cell1.innerHTML = data.ExpenseDetails;
+        cell2 = newRow.insertCell(1);
+        cell2.innerHTML = data.DescriptionDetails;
+        cell3 = newRow.insertCell(2);
+        cell3.innerHTML = data.CategoryDetails;
+        cell3 = newRow.insertCell(3);
+        cell3.innerHTML = `<button class="btn btn-primary" onClick="onEdit(this)">Edit</button>
+                           <button class="btn btn-danger" onClick="onDelete(this)">Delete</button>`;
+      }
+
+      function resetForm() {
+        document.getElementById("ExpenseDetails").value = "";
+        document.getElementById("DescriptionDetails").value = "";
+        document.getElementById("CategoryDetails").value = "";
+        selectedRow = null;
+      }
+
+      function onEdit(td) {
+        selectedRow = td.parentElement.parentElement;
+        document.getElementById("ExpenseDetails").value =
+          selectedRow.cells[0].innerHTML;
+        document.getElementById("DescriptionDetails").value =
+          selectedRow.cells[1].innerHTML;
+        document.getElementById("CategoryDetails").value =
+          selectedRow.cells[2].innerHTML;
+      }
+      function updateRecord(formData) {
+        selectedRow.cells[0].innerHTML = formData.ExpenseDetails;
+        selectedRow.cells[1].innerHTML = formData.DescriptionDetails;
+        selectedRow.cells[2].innerHTML = formData.CategoryDetails;
+      }
+
+      function onDelete(td) {
+        if (confirm("Are you sure to delete this record ?")) {
+          row = td.parentElement.parentElement;
+          document.getElementById("employeeList").deleteRow(row.rowIndex);
+          resetForm();
+        }
+      }
+      function validate() {
+        isValid = true;
+        if (document.getElementById("ExpenseDetails").value == "") {
+          isValid = false;
+          document
+            .getElementById("ChooseExpenseValidationError")
+            .classList.remove("hide");
+        } else {
+          isValid = true;
+          if (
+            !document
+              .getElementById("ChooseExpenseValidationError")
+              .classList.contains("hide")
+          )
+            document
+              .getElementById("ChooseExpenseValidationError")
+              .classList.add("hide");
+        }
+        return isValid;
+      }
+    </script>
+  </body>
+</html>
